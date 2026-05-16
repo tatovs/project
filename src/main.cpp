@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <imgui.h>
+#include <rlimgui/rlImGui.h>
 
 int main()
 {
@@ -12,6 +13,8 @@ int main()
 	{
 		TraceLog(LOG_ERROR, "Couldn't Initialize raylib Window.");
 	}
+
+	rlImGuiSetup(true);
 
 	SetTargetFPS(60);
 	int x_pos = 30;
@@ -29,6 +32,8 @@ int main()
 		BeginDrawing();
 		ClearBackground(BLACK);
 
+		rlImGuiBegin();
+
 		DrawText("Testing Text Drawing", 5, 5, 20, WHITE);
 		DrawRectangle(x_pos, y_pos, size, size, RED);
 
@@ -43,6 +48,7 @@ int main()
 
 		x_pos++;
 
+		rlImGuiEnd();
 		EndDrawing();
 
 	}
@@ -50,7 +56,8 @@ int main()
 	/*
 		Cleanup
 	*/
-	CloseWindow ();
+	rlImGuiShutdown();
+	CloseWindow();
 
 	return 0;
 }
