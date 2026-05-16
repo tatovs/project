@@ -6,6 +6,8 @@
 
 int main()
 {
+
+	SetTraceLogLevel(LOG_ALL);
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 600, "test");
 
@@ -14,7 +16,11 @@ int main()
 		TraceLog(LOG_ERROR, "Couldn't Initialize raylib Window.");
 	}
 
+
 	rlImGuiSetup(true);
+
+	ImGuiIO &io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	SetTargetFPS(60);
 	int x_pos = 30;
@@ -23,8 +29,6 @@ int main()
 
 	while (!WindowShouldClose())
 	{
-		PollInputEvents();
-
 
 		/*
 			Drawing Logic
@@ -41,6 +45,19 @@ int main()
 		DrawRectangle(50, 50, size, size, {255, 0, 0, 255});
 		
 
+		ImGui::Begin("Test");
+
+		ImGui::Text("Hello World");
+
+		if (ImGui::Button("Test Buttton"))
+		{
+			std::cout << "Pressed Button" << std::endl;
+		}
+
+		ImGui::ShowDemoWindow();
+
+		ImGui::End();
+
 		if (x_pos >= 800)
 		{
 			x_pos = 0;
@@ -51,6 +68,7 @@ int main()
 		rlImGuiEnd();
 		EndDrawing();
 
+		
 	}
 
 	/*
