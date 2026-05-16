@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <raylib.h>
+#include <imgui.h>
 
 int main()
 {
@@ -30,6 +31,10 @@ int main()
 
 		DrawText("Testing Text Drawing", 5, 5, 20, WHITE);
 		DrawRectangle(x_pos, y_pos, size, size, RED);
+
+		DrawRectangle(75, 75, size, size, { 0, 255, 0, 255 });
+		DrawRectangle(50, 50, size, size, {255, 0, 0, 255});
+		
 
 		if (x_pos >= 800)
 		{
