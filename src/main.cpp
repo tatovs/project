@@ -16,14 +16,14 @@ int main()
 		TraceLog(LOG_ERROR, "Couldn't Initialize raylib Window.");
 	}
 
-	#pragma region ImGui
-		rlImGuiSetup(true);
+	#pragma region global imgui setup
+	rlImGuiSetup(true);
 
-		ImGuiIO &io = ImGui::GetIO();
-		//io.ConfigFlags | ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Control
-		//io.ConfigFlags | ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Control
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking.
-		io.FontGlobalScale = 2.5; // Adjust Font scaling.
+	ImGuiIO &io = ImGui::GetIO();
+	//io.ConfigFlags | ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Control
+	//io.ConfigFlags | ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Control
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking.
+	io.FontGlobalScale = 1; // Adjust Font scaling.
 	#pragma endregion
 
 	SetTargetFPS(60);
@@ -40,18 +40,22 @@ int main()
 		BeginDrawing();
 		ClearBackground(BLACK);
 
-		rlImGuiBegin();
-
+		#pragma region ImGui
+		  rlImGuiBegin();
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, {});
+			ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, {});
+			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID, ImGui::GetMainViewport());
+			ImGui::PopStyleColor(2);
+		#pragma endregion
 		DrawText("Testing Text Drawing", 5, 5, 20, WHITE);
 		DrawRectangle(x_pos, y_pos, size, size, RED);
 
 		DrawRectangle(75, 75, size, size, { 0, 255, 0, 255 });
 		DrawRectangle(50, 50, size, size, {255, 0, 0, 255});
 		
-		/*
-			ImGui test window 1
-		*/
+		#pragma region imgui window 1
 		ImGui::Begin("Test");
+
 		ImGui::Text("Hello World");
 		if (ImGui::Button("Test Buttton"))
 		{
@@ -64,12 +68,11 @@ int main()
 			TraceLog(LOG_DEBUG, "Pressed Test Button 2");
 		}
 		ImGui::PopID();
+
 		ImGui::End();
-
-		/*
-			ImGui test window 2
-		*/
-
+		#pragma endregion
+		
+		#pragma region imgui window 2
 		ImGui::Begin("New Testing Window");
 		
 		ImGui::Text("Hello again.");
@@ -79,6 +82,7 @@ int main()
 		ImGui::SliderFloat("slider", &a, 0, 1);
 
 		ImGui::End();
+		#pragma endregion
 
 		if (x_pos >= 800)
 		{
@@ -87,17 +91,17 @@ int main()
 
 		x_pos++;
 
-		rlImGuiEnd();
-		EndDrawing();
+		#pragma region ImGui
+  		rlImGuiEnd();
+		#pragma endregion
 
-		
+		EndDrawing();
 	}
 
-	/*
-		Cleanup
-	*/
-	rlImGuiShutdown();
-	CloseWindow();
+	#pragma region shutdown_cleanup
+	  rlImGuiShutdown();
+	  CloseWindow();
+	#pragma endregion
 
 	return 0;
 }
