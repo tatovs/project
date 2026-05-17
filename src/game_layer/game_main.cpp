@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include <raylib.h>
 
 #include "game_main.h"
@@ -21,5 +23,7 @@ bool update_game()
 
 void close_game()
 {
-
+	std::ofstream f(RESOURCES_PATH "f.text");
+	f << "\nCLOSED GAME\n";
+	f.close();
 }

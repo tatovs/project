@@ -10,16 +10,21 @@ int main()
 {
 	#if PRODUCTION_BUILD == 1
 	SetTraceLogLevel(LOG_NONE);
+	#else
+	SetTraceLogLevel(LOG_ALL);
 	#endif
 
-	SetTraceLogLevel(LOG_ALL);
+	#pragma region initial setup
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 600, "test");
+	SetExitKey(KEY_NULL); // Disable "Esc" key from closing the window.
+	SetTargetFPS(240);
 
 	if (!IsWindowReady())
 	{
 		TraceLog(LOG_ERROR, "Couldn't Initialize raylib Window.");
 	}
+	#pragma endregion
 
 	#pragma region global imgui setup
 	rlImGuiSetup(true);
@@ -35,8 +40,6 @@ int main()
 	{
 		return 0;
 	}
-
-	SetTargetFPS(60);
 
 	while (!WindowShouldClose())
 	{
