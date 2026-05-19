@@ -29,7 +29,7 @@ bool init_game()
 
 	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
 	game_data.camera.rotation = 0.0f; 
-	game_data.camera.zoom = 1.0f; 
+	game_data.camera.zoom = 100.0f; 
 
 	return true;
 }
@@ -44,10 +44,10 @@ bool update_game()
 	ClearBackground({75, 75, 150, 255});
 
 	#pragma region camera movement
-	if (IsKeyDown(KEY_LEFT)) {game_data.camera.target.x -= 300.0f * delta_time;}
-	if (IsKeyDown(KEY_RIGHT)) {game_data.camera.target.x += 300.0f * delta_time;}
-	if (IsKeyDown(KEY_UP)) {game_data.camera.target.y -= 300.0f * delta_time;}
-	if (IsKeyDown(KEY_DOWN)) {game_data.camera.target.y += 300.0f * delta_time;}
+	if (IsKeyDown(KEY_LEFT)) {game_data.camera.target.x -= 7.0f * delta_time;}
+	if (IsKeyDown(KEY_RIGHT)) {game_data.camera.target.x += 7.0f * delta_time;}
+	if (IsKeyDown(KEY_UP)) {game_data.camera.target.y -= 7.0f * delta_time;}
+	if (IsKeyDown(KEY_DOWN)) {game_data.camera.target.y += 7.0f * delta_time;}
 	#pragma endregion
 
 	BeginMode2D(game_data.camera);
@@ -60,7 +60,7 @@ bool update_game()
 
 			if (b.type != Block::air)
 			{
-				float size = 32;
+				float size = 1;
 				float x_pos = x * size;
 				float y_pos = y * size;
 
