@@ -10,6 +10,7 @@
 struct Game_Data
 {
 	Game_Map game_map;
+	Camera2D camera;
 }game_data;
 
 Asset_Manager asset_manager;
@@ -26,6 +27,10 @@ bool init_game()
 	game_data.game_map.get_block_unsafe(3, 3).type = Block::dirt;
 	game_data.game_map.get_block_unsafe(4, 4).type = Block::dirt;
 
+	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
+	game_data.camera.rotation = 0.0f; 
+	game_data.camera.zoom = 1.0f; 
+
 	return true;
 }
 
@@ -34,7 +39,11 @@ bool update_game()
 	float delta_time = GetFrameTime();
 	if(delta_time > 1.f / 5) {delta_time = 1 / 5.f;}
 
+	game_data.camera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
+
 	ClearBackground({75, 75, 150, 255});
+
+	BeginMode2D(game_data.camera);
 
 	for (int y = 0; y < game_data.game_map.height; y++)
 	{
@@ -58,6 +67,8 @@ bool update_game()
 			}
 		}
 	}
+
+	EndMode2D();
 
 	return true;
 }
