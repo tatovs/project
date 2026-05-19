@@ -43,6 +43,13 @@ bool update_game()
 
 	ClearBackground({75, 75, 150, 255});
 
+	#pragma region camera movement
+	if (IsKeyDown(KEY_LEFT)) {game_data.camera.target.x -= 300.0f * delta_time;}
+	if (IsKeyDown(KEY_RIGHT)) {game_data.camera.target.x += 300.0f * delta_time;}
+	if (IsKeyDown(KEY_UP)) {game_data.camera.target.y -= 300.0f * delta_time;}
+	if (IsKeyDown(KEY_DOWN)) {game_data.camera.target.y += 300.0f * delta_time;}
+	#pragma endregion
+
 	BeginMode2D(game_data.camera);
 
 	for (int y = 0; y < game_data.game_map.height; y++)
