@@ -70,16 +70,16 @@ bool update_game()
 	#pragma region block selector
 	static auto new_b = Block::air;
 
-	if (IsKeyDown(KEY_ONE)) {new_b = Block::dirt;}
-	if (IsKeyDown(KEY_TWO)) {new_b = Block::wood_plank;}
-	if (IsKeyDown(KEY_THREE)) {new_b = Block::door;}
-	if (IsKeyDown(KEY_FOUR)) {new_b = Block::work_bench;}
-	if (IsKeyDown(KEY_FIVE)) {new_b = Block::jar;}
-	if (IsKeyDown(KEY_SIX)) {new_b = Block::brick;}
-	if (IsKeyDown(KEY_SEVEN)) {new_b = Block::wordrobe;}
-	if (IsKeyDown(KEY_EIGHT)) {new_b = Block::bone_chest;}
-	if (IsKeyDown(KEY_NINE)) {new_b = Block::painting;}
-	if (IsKeyDown(KEY_ZERO)) {new_b = Block::glass;}
+	if (IsKeyReleased(KEY_ONE)) {new_b = Block::dirt;}
+	if (IsKeyReleased(KEY_TWO)) {new_b = Block::wood_plank;}
+	if (IsKeyReleased(KEY_THREE)) {new_b = Block::door;}
+	if (IsKeyReleased(KEY_FOUR)) {new_b = Block::work_bench;}
+	if (IsKeyReleased(KEY_FIVE)) {new_b = Block::jar;}
+	if (IsKeyReleased(KEY_SIX)) {new_b = Block::brick;}
+	if (IsKeyReleased(KEY_SEVEN)) {new_b = Block::wordrobe;}
+	if (IsKeyReleased(KEY_EIGHT)) {new_b = Block::bone_chest;}
+	if (IsKeyReleased(KEY_NINE)) {new_b = Block::painting;}
+	if (IsKeyReleased(KEY_ZERO)) {new_b = Block::glass;}
 	#pragma endregion
 
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
