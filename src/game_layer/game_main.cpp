@@ -20,13 +20,31 @@ bool init_game()
 {
 	asset_manager.load_all();
 
-	game_data.game_map.create(30, 10);
+	game_data.game_map.create(30, 30);
 
-	game_data.game_map.get_block_unsafe(0, 0).type = Block::dirt;
-	game_data.game_map.get_block_unsafe(1, 1).type = Block::grass;
-	game_data.game_map.get_block_unsafe(2, 2).type = Block::gold_block;
-	game_data.game_map.get_block_unsafe(3, 3).type = Block::glass;
-	game_data.game_map.get_block_unsafe(4, 4).type = Block::wood_platform;
+	for (int y = 0; y < game_data.game_map.height; y++)
+	{
+		for (int x = 0; x < game_data.game_map.width; x++)
+		{
+			float s = (std::sin(x) + 1.0f) / 2.0f;
+			float s1 = (std::sin(x * 0.5) + 1.0f) / 2.0f;
+
+			
+
+			if (game_data.game_map.height - (game_data.game_map.height * 0.3 * s) - (game_data.game_map.height * 0.2 * s1) < y)
+			{
+				game_data.game_map.get_block_unsafe(x, y).type = Block::dirt;
+			}
+			else if (x == 0 && y == 0)
+			{
+				game_data.game_map.get_block_unsafe(0, 0).type = Block::silver;
+			}
+			else
+			{
+				game_data.game_map.get_block_unsafe(x, y).type = Block::air;
+			}
+		}
+	}
 
 	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
 	game_data.camera.rotation = 0.0f; 

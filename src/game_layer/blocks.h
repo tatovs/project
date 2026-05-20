@@ -60,6 +60,7 @@ struct Block
 		bone_wordrobe,
 		bone_book_shelf,
 		bone_platform,
+		silver,
 
 		BLOCKS_COUNT,
 
