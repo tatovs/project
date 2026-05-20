@@ -29,8 +29,6 @@ bool init_game()
 			float s = (std::sin(x) + 1.0f) / 2.0f;
 			float s1 = (std::sin(x * 0.5) + 1.0f) / 2.0f;
 
-			
-
 			if (game_data.game_map.height - (game_data.game_map.height * 0.3 * s) - (game_data.game_map.height * 0.2 * s1) < y)
 			{
 				game_data.game_map.get_block_unsafe(x, y).type = Block::dirt;
@@ -69,6 +67,11 @@ bool update_game()
 	if (IsKeyDown(KEY_DOWN)) {game_data.camera.target.y += 7.0f * delta_time;}
 	#pragma endregion
 
+	Vector2 world_pos = GetScreenToWorld2D(GetMousePosition(), game_data.camera);
+	int x_block = (int)floor(world_pos.x);
+	int y_block = (int)floor(world_pos.y);
+
+	#pragma region draw world
 	BeginMode2D(game_data.camera);
 
 	for (int y = 0; y < game_data.game_map.height; y++)
@@ -90,7 +93,17 @@ bool update_game()
 		}
 	}
 
+	//draw frame over selected block.
+	DrawTexturePro(
+		asset_manager.frame, // Texture.
+		{ 0, 0, (float) asset_manager.frame.width, (float) asset_manager.frame.height }, //source.
+		{ (float) x_block, (float) y_block, 1, 1 }, //destination.
+		{ 0, 0 }, //origin (top-left corner.
+		0.0f,  // angle of rotation clockwise.
+		WHITE); // tint.
+
 	EndMode2D();
+	#pragma endregion
 
 	return true;
 }
