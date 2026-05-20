@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include <raylib.h>
+#include <raymath.h>
 
 #include "game_main.h"
 #include <asserts.h>
@@ -23,9 +24,10 @@ bool init_game()
 	game_data.game_map.create(30, 30);
 
 	for (int y = 0; y < game_data.game_map.height; y++)
-	{
 		for (int x = 0; x < game_data.game_map.width; x++)
 		{
+			game_data.game_map.get_block_unsafe(x, y).type = Block::silver;
+
 			float s = (std::sin(x) + 1.0f) / 2.0f;
 			float s1 = (std::sin(x * 0.5) + 1.0f) / 2.0f;
 
@@ -35,10 +37,9 @@ bool init_game()
 			}
 			else
 			{
-				game_data.game_map.get_block_unsafe(x, y).type = Block::air;
+				//game_data.game_map.get_block_unsafe(x, y).type = Block::air;
 			}
 		}
-	}
 
 	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
 	game_data.camera.rotation = 0.0f; 
@@ -82,6 +83,7 @@ bool update_game()
 	if (IsKeyReleased(KEY_ZERO)) {new_b = Block::glass;}
 	#pragma endregion
 
+	#pragma region mouse editor
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
 		auto b = game_data.game_map.get_block_safe(x_block, y_block);
@@ -98,13 +100,30 @@ bool update_game()
 			b->type = new_b;
 		}
 	}
+	#pragma endregion
 
 	#pragma region draw world
 	BeginMode2D(game_data.camera);
+	
+	// Get Corners
+	Vector2 top_left_view = GetScreenToWorld2D({0, 0}, game_data.camera);
+	Vector2 bottom_right_view = GetScreenToWorld2D({(float)GetScreenWidth(), (float)GetScreenHeight()}, game_data.camera);
 
-	for (int y = 0; y < game_data.game_map.height; y++)
-	{
-		for (int x = 0; x < game_data.game_map.width; x++)
+	//Padding
+	int start_x_view = (int)floorf(top_left_view.x - 1);
+	int end_x_view = (int)ceilf(bottom_right_view.x + 1);
+	int start_y_view = (int)floorf(top_left_view.y - 1);
+	int end_y_view = (int)ceilf(bottom_right_view.y + 1);
+
+	//Clamping values within range
+	start_x_view = Clamp(start_x_view, 0, game_data.game_map.width - 1);
+	end_x_view = Clamp(end_x_view, 0, game_data.game_map.width - 1);
+	
+	start_y_view = Clamp(start_y_view, 0, game_data.game_map.height - 1);
+	end_y_view = Clamp(end_y_view, 0, game_data.game_map.height - 1);
+
+	for (int y = start_y_view; y <= end_y_view; y++)
+		for (int x = start_x_view; x <= end_x_view; x++)
 		{
 			auto &b = game_data.game_map.get_block_unsafe(x, y);
 
@@ -119,7 +138,6 @@ bool update_game()
 					WHITE); // tint.
 			}
 		}
-	}
 
 	//draw frame over selected block.
 	DrawTexturePro(
@@ -132,6 +150,8 @@ bool update_game()
 
 	EndMode2D();
 	#pragma endregion
+
+	DrawFPS(10, 10);
 
 	return true;
 }
