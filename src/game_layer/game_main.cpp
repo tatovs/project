@@ -33,10 +33,6 @@ bool init_game()
 			{
 				game_data.game_map.get_block_unsafe(x, y).type = Block::dirt;
 			}
-			else if (x == 0 && y == 0)
-			{
-				game_data.game_map.get_block_unsafe(0, 0).type = Block::silver;
-			}
 			else
 			{
 				game_data.game_map.get_block_unsafe(x, y).type = Block::air;
@@ -70,6 +66,23 @@ bool update_game()
 	Vector2 world_pos = GetScreenToWorld2D(GetMousePosition(), game_data.camera);
 	int x_block = (int)floor(world_pos.x);
 	int y_block = (int)floor(world_pos.y);
+
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	{
+		auto b = game_data.game_map.get_block_safe(x_block, y_block);
+		if (b)
+		{
+			*b = {};
+		}
+	}
+	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+	{
+		auto b = game_data.game_map.get_block_safe(x_block, y_block);
+		if (b)
+		{
+			b->type = Block::silver;
+		}
+	}
 
 	#pragma region draw world
 	BeginMode2D(game_data.camera);
