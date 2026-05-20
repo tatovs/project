@@ -4,8 +4,9 @@
 
 #include "game_main.h"
 #include <asserts.h>
-#include <asset_manager.h>
-#include <game_map.h>
+#include "asset_manager.h"
+#include "game_map.h"
+#include "helpres.h"
 
 struct Game_Data
 {
@@ -22,10 +23,10 @@ bool init_game()
 	game_data.game_map.create(30, 10);
 
 	game_data.game_map.get_block_unsafe(0, 0).type = Block::dirt;
-	game_data.game_map.get_block_unsafe(1, 1).type = Block::dirt;
-	game_data.game_map.get_block_unsafe(2, 2).type = Block::dirt;
-	game_data.game_map.get_block_unsafe(3, 3).type = Block::dirt;
-	game_data.game_map.get_block_unsafe(4, 4).type = Block::dirt;
+	game_data.game_map.get_block_unsafe(1, 1).type = Block::grass;
+	game_data.game_map.get_block_unsafe(2, 2).type = Block::gold_block;
+	game_data.game_map.get_block_unsafe(3, 3).type = Block::glass;
+	game_data.game_map.get_block_unsafe(4, 4).type = Block::wood_platform;
 
 	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
 	game_data.camera.rotation = 0.0f; 
@@ -60,14 +61,10 @@ bool update_game()
 
 			if (b.type != Block::air)
 			{
-				float size = 1;
-				float x_pos = x * size;
-				float y_pos = y * size;
-
 				DrawTexturePro(
-				  asset_manager.dirt, // Texture.
-					Rectangle{0.f, 0.f, (float) asset_manager.dirt.width, (float) asset_manager.dirt.height }, //source.
-					{x_pos, y_pos, size, size}, //destination.
+				  asset_manager.textures, // Texture.
+					get_texture_atlas(b.type, 0, 32, 32), //source.
+					{(float)x, (float)y, 1, 1}, //destination.
 					{0, 0}, //origin (top-left corner.
 					0.0f,  // angle of rotation clockwise.
 					WHITE); // tint.
