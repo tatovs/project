@@ -67,6 +67,21 @@ bool update_game()
 	int x_block = (int)floor(world_pos.x);
 	int y_block = (int)floor(world_pos.y);
 
+	#pragma region block selector
+	static auto new_b = Block::air;
+
+	if (IsKeyDown(KEY_ONE)) {new_b = Block::dirt;}
+	if (IsKeyDown(KEY_TWO)) {new_b = Block::wood_plank;}
+	if (IsKeyDown(KEY_THREE)) {new_b = Block::door;}
+	if (IsKeyDown(KEY_FOUR)) {new_b = Block::work_bench;}
+	if (IsKeyDown(KEY_FIVE)) {new_b = Block::jar;}
+	if (IsKeyDown(KEY_SIX)) {new_b = Block::brick;}
+	if (IsKeyDown(KEY_SEVEN)) {new_b = Block::wordrobe;}
+	if (IsKeyDown(KEY_EIGHT)) {new_b = Block::bone_chest;}
+	if (IsKeyDown(KEY_NINE)) {new_b = Block::painting;}
+	if (IsKeyDown(KEY_ZERO)) {new_b = Block::glass;}
+	#pragma endregion
+
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
 		auto b = game_data.game_map.get_block_safe(x_block, y_block);
@@ -80,7 +95,7 @@ bool update_game()
 		auto b = game_data.game_map.get_block_safe(x_block, y_block);
 		if (b)
 		{
-			b->type = Block::silver;
+			b->type = new_b;
 		}
 	}
 
