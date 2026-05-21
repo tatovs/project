@@ -21,7 +21,7 @@ bool init_game()
 {
 	asset_manager.load_all();
 
-	game_data.game_map.create(30, 30);
+	game_data.game_map.create(30, 20);
 
 	for (int y = 0; y < game_data.game_map.height; y++)
 		for (int x = 0; x < game_data.game_map.width; x++)
@@ -37,13 +37,13 @@ bool init_game()
 			}
 			else
 			{
-				//game_data.game_map.get_block_unsafe(x, y).type = Block::air;
+				game_data.game_map.get_block_unsafe(x, y).type = Block::air;
 			}
 		}
 
 	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
 	game_data.camera.rotation = 0.0f; 
-	game_data.camera.zoom = 100.0f; 
+	game_data.camera.zoom = 50.0f; 
 
 	return true;
 }
@@ -65,18 +65,18 @@ bool update_game()
 	#pragma endregion
 
 	Vector2 world_pos = GetScreenToWorld2D(GetMousePosition(), game_data.camera);
-	int x_block = (int)floor(world_pos.x);
-	int y_block = (int)floor(world_pos.y);
+	int x_block = (int) floor(world_pos.x);
+	int y_block = (int) floor(world_pos.y);
 
 	#pragma region block selector
 	static auto new_b = Block::air;
 
-	if (IsKeyReleased(KEY_ONE)) {new_b = Block::dirt;}
-	if (IsKeyReleased(KEY_TWO)) {new_b = Block::wood_plank;}
+	if (IsKeyReleased(KEY_ONE)) {new_b = Block::wood_log;}
+	if (IsKeyReleased(KEY_TWO)) {new_b = Block::leaves;}
 	if (IsKeyReleased(KEY_THREE)) {new_b = Block::door;}
 	if (IsKeyReleased(KEY_FOUR)) {new_b = Block::work_bench;}
 	if (IsKeyReleased(KEY_FIVE)) {new_b = Block::jar;}
-	if (IsKeyReleased(KEY_SIX)) {new_b = Block::brick;}
+	if (IsKeyReleased(KEY_SIX)) {new_b = Block::brick;} 
 	if (IsKeyReleased(KEY_SEVEN)) {new_b = Block::wordrobe;}
 	if (IsKeyReleased(KEY_EIGHT)) {new_b = Block::bone_chest;}
 	if (IsKeyReleased(KEY_NINE)) {new_b = Block::painting;}
@@ -105,48 +105,73 @@ bool update_game()
 	#pragma region draw world
 	BeginMode2D(game_data.camera);
 	
-	// Get Corners
+	//Get Corners.
 	Vector2 top_left_view = GetScreenToWorld2D({0, 0}, game_data.camera);
 	Vector2 bottom_right_view = GetScreenToWorld2D({(float)GetScreenWidth(), (float)GetScreenHeight()}, game_data.camera);
 
-	//Padding
+	//Padding.
 	int start_x_view = (int)floorf(top_left_view.x - 1);
 	int end_x_view = (int)ceilf(bottom_right_view.x + 1);
 	int start_y_view = (int)floorf(top_left_view.y - 1);
 	int end_y_view = (int)ceilf(bottom_right_view.y + 1);
 
-	//Clamping values within range
+	//Clamping values within range.
 	start_x_view = Clamp(start_x_view, 0, game_data.game_map.width - 1);
 	end_x_view = Clamp(end_x_view, 0, game_data.game_map.width - 1);
 	
 	start_y_view = Clamp(start_y_view, 0, game_data.game_map.height - 1);
 	end_y_view = Clamp(end_y_view, 0, game_data.game_map.height - 1);
 
+	//Draw blocks inside padding area.
 	for (int y = start_y_view; y <= end_y_view; y++)
 		for (int x = start_x_view; x <= end_x_view; x++)
 		{
 			auto &b = game_data.game_map.get_block_unsafe(x, y);
 
-			if (b.type != Block::air)
+			if (b.type == Block::wood_log)
 			{
+				auto up_b = game_data.game_map.get_block_safe(x, y - 1);
+				auto down_b = game_data.game_map.get_block_safe(x, y + 1);
+				auto left_b = game_data.game_map.get_block_safe(x - 1, y);
+				auto right_b = game_data.game_map.get_block_safe(x + 1, y);
+				int x_wood = 0;
+
+				if (down_b->type != Block::wood_log && down_b->type != Block::leaves) {up_b->type == Block::wood_log ? x_wood = 4 : x_wood = 7;}
+				else if (left_b->type == Block::leaves && right_b->type == Block::leaves && down_b->type == Block::wood_log) {x_wood = 1;}
+				else if (left_b->type != Block::leaves && right_b->type == Block::leaves && down_b->type == Block::wood_log) {x_wood = 2;}
+				else if (left_b->type == Block::leaves && right_b->type != Block::leaves && down_b->type == Block::wood_log) {x_wood = 3;}
+				else if (up_b->type == Block::leaves && down_b->type == Block::wood_log) {x_wood = 5;}
+				else if (up_b->type != Block::leaves && down_b->type == Block::wood_log) {up_b->type == Block::wood_log ? x_wood = 0 : x_wood = 6;}
+
 				DrawTexturePro(
-				  asset_manager.textures, // Texture.
-					get_texture_atlas(b.type, 0, 32, 32), //source.
+					asset_manager.trees, // Texture.
+					get_texture_atlas(x_wood, 0, 32, 32), //source.
 					{(float)x, (float)y, 1, 1}, //destination.
 					{0, 0}, //origin (top-left corner.
 					0.0f,  // angle of rotation clockwise.
 					WHITE); // tint.
 			}
+			else if (b.type != Block::air)
+			{
+				DrawTexturePro(
+				asset_manager.textures, // Texture.
+				get_texture_atlas(b.type, 0, 32, 32), //source.
+				{(float)x, (float)y, 1, 1}, //destination.
+				{0, 0}, //origin (top-left corner.
+				0.0f,  // angle of rotation clockwise.
+				WHITE); // tint.
+			}
 		}
 
-	//draw frame over selected block.
+	//Draw frame over the selected block.
 	DrawTexturePro(
 		asset_manager.frame, // Texture.
-		{ 0, 0, (float) asset_manager.frame.width, (float) asset_manager.frame.height }, //source.
-		{ (float) x_block, (float) y_block, 1, 1 }, //destination.
-		{ 0, 0 }, //origin (top-left corner.
+		{0, 0, (float)asset_manager.frame.width, (float)asset_manager.frame.height}, //source.
+		{(float)x_block, (float)y_block, 1, 1}, //destination.
+		{0, 0}, //origin (top-left corner.
 		0.0f,  // angle of rotation clockwise.
 		WHITE); // tint.
+	//Draw frame under the selected block.
 
 	EndMode2D();
 	#pragma endregion

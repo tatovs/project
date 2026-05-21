@@ -61,6 +61,7 @@ struct Block
 		bone_book_shelf,
 		bone_platform,
 		silver,
+		
 
 		BLOCKS_COUNT,
 
