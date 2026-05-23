@@ -12,7 +12,7 @@ int get_random_int(std::ranlux24_base &rng, int min, int max)
 	return dist(rng);
 }
 
-bool get_random_chacnet(std::ranlux24_base &rng, float chance)
+bool get_random_chance(std::ranlux24_base &rng, float chance)
 {
 	float dice = get_random_float(rng, 0.0f, 0.1f);
 	return dice <= chance;

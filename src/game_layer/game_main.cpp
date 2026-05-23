@@ -26,7 +26,7 @@ bool init_game()
 	for (int y = 0; y < game_data.game_map.height; y++)
 		for (int x = 0; x < game_data.game_map.width; x++)
 		{
-			game_data.game_map.get_wall_block_unsafe(x, y).type = Block::dirt_wall;
+			game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::wall).type = Block::dirt_wall;
 		}
 
 	for (int y = 0; y < game_data.game_map.height; y++)
@@ -38,11 +38,11 @@ bool init_game()
 
 			if (game_data.game_map.height - (game_data.game_map.height * 0.3 * s) - (game_data.game_map.height * 0.2 * s1) < y)
 			{
-				game_data.game_map.get_map_block_unsafe(x, y).type = Block::dirt;
+				game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::dirt;
 			}
 			else
 			{
-				game_data.game_map.get_map_block_unsafe(x, y).type = Block::air;
+				game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::air;
 			}
 		}
 
@@ -91,7 +91,7 @@ bool update_game()
 	#pragma region mouse editor
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
-		auto b = game_data.game_map.get_map_block_safe(x_block, y_block);
+		auto b = game_data.game_map.get_block_safe(x_block, y_block, Game_Map::Layer::map);
 		if (b)
 		{
 			*b = {};
@@ -99,7 +99,7 @@ bool update_game()
 	}
 	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
-		auto b = game_data.game_map.get_map_block_safe(x_block, y_block);
+		auto b = game_data.game_map.get_block_safe(x_block, y_block, Game_Map::Layer::map);
 		if (b)
 		{
 			b->type = new_b;
@@ -131,7 +131,7 @@ bool update_game()
 	for (int y = start_y_view; y <= end_y_view; y++)
 		for (int x = start_x_view; x <= end_x_view; x++)
 		{
-			auto &w = game_data.game_map.get_wall_block_unsafe(x, y);
+			auto &w = game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::wall);
 
 			if (w.type != Block::air)
 			{
@@ -149,14 +149,14 @@ bool update_game()
 	for (int y = start_y_view; y <= end_y_view; y++)
 		for (int x = start_x_view; x <= end_x_view; x++)
 		{
-			auto &b = game_data.game_map.get_map_block_unsafe(x, y);
+			auto &b = game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map);
 
 			if (b.type == Block::wood_log)
 			{
-				auto up_b = game_data.game_map.get_map_block_safe(x, y - 1);
-				auto down_b = game_data.game_map.get_map_block_safe(x, y + 1);
-				auto left_b = game_data.game_map.get_map_block_safe(x - 1, y);
-				auto right_b = game_data.game_map.get_map_block_safe(x + 1, y);
+				auto up_b = game_data.game_map.get_block_safe(x, y - 1, Game_Map::Layer::map);
+				auto down_b = game_data.game_map.get_block_safe(x, y + 1, Game_Map::Layer::map);
+				auto left_b = game_data.game_map.get_block_safe(x - 1, y, Game_Map::Layer::map);
+				auto right_b = game_data.game_map.get_block_safe(x + 1, y, Game_Map::Layer::map);
 				int x_wood = 0;
 
 				if (down_b->type != Block::wood_log && down_b->type != Block::leaves) {up_b->type == Block::wood_log ? x_wood = 4 : x_wood = 7;}

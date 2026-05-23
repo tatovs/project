@@ -14,36 +14,35 @@ void Game_Map::create(int w, int h)
 	for (auto &w : wall_data) {w = {}; } //Clears all Block data.
 }
 
-Block &Game_Map::get_map_block_unsafe(int x, int y)
+Block &Game_Map::get_map_block_unsafe(int x, int y, Game_Map::Layer layer = Game_Map::Layer::map)
 {
 	permaAssertCommentDevelopement(map_data.size() == width * height, "Map data not initialized");
 	permaAssertCommentDevelopement( x >= 0 && y >= 0 && x < width && y < height, "get:block_unsafe out of bounds error");
 
-	return map_data[x + y * width];
+	switch (layer)
+	{
+		case Game_Map::Layer::wall:
+			return wall_data[x + y * width];
+			break;
+		default:
+			return map_data[x +y * width];
+			break;
+	}
 }
 
-Block *Game_Map::get_map_block_safe(int x, int y)
+Block *Game_Map::get_map_block_safe(int x, int y, Game_Map::Layer  layer = Game_Map::Layer::map)
 {
 	permaAssertCommentDevelopement(map_data.size() == width * height, "Map data not initialized");
 	
 	if(x < 0 || y < 0 || x >= width || y >= height) {return nullptr;}
 
-	return &map_data[x + y * width];
-}
-
-Block &Game_Map::get_wall_block_unsafe(int x, int y)
-{
-	permaAssertCommentDevelopement(map_data.size() == width * height, "Map data not initialized");
-	permaAssertCommentDevelopement( x >= 0 && y >= 0 && x < width && y < height, "get:block_unsafe out of bounds error");
-
-	return wall_data[x + y * width];
-}
-
-Block *Game_Map::get_wall_block_safe(int x, int y)
-{
-	permaAssertCommentDevelopement(map_data.size() == width * height, "Map data not initialized");
-	
-	if(x < 0 || y < 0 || x >= width || y >= height) {return nullptr;}
-
-	return &wall_data[x + y * width];
+	switch (layer)
+	{
+		case Game_Map::Layer::wall:
+			return &wall_data[x + y * width];
+			break;
+		default:
+			return &map_data[x + y * width];
+			break;
+	}
 }

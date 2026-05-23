@@ -13,9 +13,14 @@ struct Game_Map
   std::vector<Block> wall_data;
 
 	void create(int width, int height);
+	enum class Layer
+	{
+		map = 0,
+		wall,
 
-	Block &get_map_block_unsafe(int x, int y);
-	Block *get_map_block_safe(int x, int y);
-	Block &get_wall_block_unsafe(int x, int y);
-	Block *get_wall_block_safe(int x, int y);
+		LAYER_COUNT
+	};
+
+	Block &get_block_unsafe(int x, int y, Layer layer = Layer::map);
+	Block *get_block_safe(int x, int y, Layer layer = Layer::map);
 };
