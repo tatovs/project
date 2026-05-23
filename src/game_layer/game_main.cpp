@@ -26,18 +26,23 @@ bool init_game()
 	for (int y = 0; y < game_data.game_map.height; y++)
 		for (int x = 0; x < game_data.game_map.width; x++)
 		{
-			game_data.game_map.get_block_unsafe(x, y).type = Block::silver;
+			game_data.game_map.get_wall_block_unsafe(x, y).type = Block::dirt_wall;
+		}
+
+	for (int y = 0; y < game_data.game_map.height; y++)
+		for (int x = 0; x < game_data.game_map.width; x++)
+		{
 
 			float s = (std::sin(x) + 1.0f) / 2.0f;
 			float s1 = (std::sin(x * 0.5) + 1.0f) / 2.0f;
 
 			if (game_data.game_map.height - (game_data.game_map.height * 0.3 * s) - (game_data.game_map.height * 0.2 * s1) < y)
 			{
-				game_data.game_map.get_block_unsafe(x, y).type = Block::dirt;
+				game_data.game_map.get_map_block_unsafe(x, y).type = Block::dirt;
 			}
 			else
 			{
-				game_data.game_map.get_block_unsafe(x, y).type = Block::air;
+				game_data.game_map.get_map_block_unsafe(x, y).type = Block::air;
 			}
 		}
 
@@ -86,7 +91,7 @@ bool update_game()
 	#pragma region mouse editor
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
-		auto b = game_data.game_map.get_block_safe(x_block, y_block);
+		auto b = game_data.game_map.get_map_block_safe(x_block, y_block);
 		if (b)
 		{
 			*b = {};
@@ -94,7 +99,7 @@ bool update_game()
 	}
 	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
-		auto b = game_data.game_map.get_block_safe(x_block, y_block);
+		auto b = game_data.game_map.get_map_block_safe(x_block, y_block);
 		if (b)
 		{
 			b->type = new_b;
@@ -122,18 +127,36 @@ bool update_game()
 	start_y_view = Clamp(start_y_view, 0, game_data.game_map.height - 1);
 	end_y_view = Clamp(end_y_view, 0, game_data.game_map.height - 1);
 
+	//Draw walls inside padding area.
+	for (int y = start_y_view; y <= end_y_view; y++)
+		for (int x = start_x_view; x <= end_x_view; x++)
+		{
+			auto &w = game_data.game_map.get_wall_block_unsafe(x, y);
+
+			if (w.type != Block::air)
+			{
+				DrawTexturePro(
+				asset_manager.textures_walls, // Texture.
+				get_texture_atlas(w.type, 0, 32, 32), //source.
+				{(float) x, (float) y, 1, 1}, //destination.
+				{0, 0}, //origin (top-left corner.
+				0.0f,  // angle of rotation clockwise.
+				WHITE); // tint.
+			}
+		}
+
 	//Draw blocks inside padding area.
 	for (int y = start_y_view; y <= end_y_view; y++)
 		for (int x = start_x_view; x <= end_x_view; x++)
 		{
-			auto &b = game_data.game_map.get_block_unsafe(x, y);
+			auto &b = game_data.game_map.get_map_block_unsafe(x, y);
 
 			if (b.type == Block::wood_log)
 			{
-				auto up_b = game_data.game_map.get_block_safe(x, y - 1);
-				auto down_b = game_data.game_map.get_block_safe(x, y + 1);
-				auto left_b = game_data.game_map.get_block_safe(x - 1, y);
-				auto right_b = game_data.game_map.get_block_safe(x + 1, y);
+				auto up_b = game_data.game_map.get_map_block_safe(x, y - 1);
+				auto down_b = game_data.game_map.get_map_block_safe(x, y + 1);
+				auto left_b = game_data.game_map.get_map_block_safe(x - 1, y);
+				auto right_b = game_data.game_map.get_map_block_safe(x + 1, y);
 				int x_wood = 0;
 
 				if (down_b->type != Block::wood_log && down_b->type != Block::leaves) {up_b->type == Block::wood_log ? x_wood = 4 : x_wood = 7;}
