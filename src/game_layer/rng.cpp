@@ -20,13 +20,17 @@ bool get_random_chance(std::ranlux24_base &rng, float chance)
 
 int get_random_texture(int x_pos, int y_pos)
 {
-	uint32_t v = (uint32_t)x_pos * 0x1f1f1f1f ^ (uint32_t)y_pos * 0x5f356495;
+  uint32_t x = (uint32_t)x_pos * 3266489917 + 374761393;
+  x = (x << 17) | (x >> 15);
 
-	v ^= v >> 16;
-	v *= 0x7feb352d;
-	v ^= v >> 15;
-	v *= 0x846ca68b;
-	v ^= v >> 16;
+  x += (uint32_t)y_pos * 3266489917;
 
-	return v & 3;
+  x *= 668265263;
+  x ^= x >> 15;
+  x *= 2246822519;
+  x ^= x >> 13;
+  x *= 3266489917;
+  x ^= x >> 16;
+
+  return x & 3;
 }
