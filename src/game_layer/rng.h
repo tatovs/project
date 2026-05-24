@@ -13,4 +13,4 @@ int get_random_int(std::ranlux24_base &rng, int min, int max);
 bool get_random_chance(std::ranlux24_base &rng, float chacne);
 
 //random int number betwen min and max, does no include the max.
-int get_random_texture(std::ranlux24_base &rng, int x, int y, Block type);
+int get_random_texture(int x, int y);

@@ -8,6 +8,7 @@
 #include "asset_manager.h"
 #include "game_map.h"
 #include "helpers.h"
+#include "rng.h"
 
 struct Game_Data
 {
@@ -32,10 +33,10 @@ bool init_game()
 	for (int y = 0; y < game_data.game_map.height; y++)
 		for (int x = 0; x < game_data.game_map.width; x++)
 		{
-
 			float s = (std::sin(x) + 1.0f) / 2.0f;
 			float s1 = (std::sin(x * 0.5) + 1.0f) / 2.0f;
-
+			game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::dirt;
+			/*
 			if (game_data.game_map.height - (game_data.game_map.height * 0.3 * s) - (game_data.game_map.height * 0.2 * s1) < y)
 			{
 				game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::dirt;
@@ -44,6 +45,7 @@ bool init_game()
 			{
 				game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::air;
 			}
+			*/
 		}
 
 	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
@@ -78,7 +80,7 @@ bool update_game()
 
 	if (IsKeyReleased(KEY_ONE)) {new_b = Block::wood_log;}
 	if (IsKeyReleased(KEY_TWO)) {new_b = Block::leaves;}
-	if (IsKeyReleased(KEY_THREE)) {new_b = Block::door;}
+	if (IsKeyReleased(KEY_THREE)) {new_b = Block::dirt;}
 	if (IsKeyReleased(KEY_FOUR)) {new_b = Block::work_bench;}
 	if (IsKeyReleased(KEY_FIVE)) {new_b = Block::jar;}
 	if (IsKeyReleased(KEY_SIX)) {new_b = Block::brick;} 
@@ -132,12 +134,13 @@ bool update_game()
 		for (int x = start_x_view; x <= end_x_view; x++)
 		{
 			auto &w = game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::wall);
+			int variant = get_random_texture(x, y);
 
 			if (w.type != Block::air)
 			{
 				DrawTexturePro(
 				asset_manager.textures_walls, // Texture.
-				get_texture_atlas(w.type, 0, 32, 32), //source.
+				get_texture_atlas(w.type, variant, 32, 32), //source.
 				{(float) x, (float) y, 1, 1}, //destination.
 				{0, 0}, //origin (top-left corner.
 				0.0f,  // angle of rotation clockwise.
@@ -150,25 +153,26 @@ bool update_game()
 		for (int x = start_x_view; x <= end_x_view; x++)
 		{
 			auto &b = game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map);
+			int variant = get_random_texture(x, y);
 
 			if (b.type == Block::wood_log)
 			{
-				auto up_b = game_data.game_map.get_block_safe(x, y - 1, Game_Map::Layer::map);
-				auto down_b = game_data.game_map.get_block_safe(x, y + 1, Game_Map::Layer::map);
-				auto left_b = game_data.game_map.get_block_safe(x - 1, y, Game_Map::Layer::map);
-				auto right_b = game_data.game_map.get_block_safe(x + 1, y, Game_Map::Layer::map);
+				auto up_b = !game_data.game_map.get_block_safe(x, y - 1, Game_Map::Layer::map) ? game_data.game_map.get_block_safe(x, y, Game_Map::Layer::map) : game_data.game_map.get_block_safe(x, y - 1, Game_Map::Layer::map);
+				auto down_b = !game_data.game_map.get_block_safe(x, y + 1, Game_Map::Layer::map) ? game_data.game_map.get_block_safe(x, y, Game_Map::Layer::map) : game_data.game_map.get_block_safe(x, y + 1, Game_Map::Layer::map);
+				auto left_b = !game_data.game_map.get_block_safe(x - 1, y, Game_Map::Layer::map) ? game_data.game_map.get_block_safe(x, y, Game_Map::Layer::map) : game_data.game_map.get_block_safe(x - 1, y, Game_Map::Layer::map);
+				auto right_b = !game_data.game_map.get_block_safe(x + 1, y, Game_Map::Layer::map) ? game_data.game_map.get_block_safe(x, y, Game_Map::Layer::map) : game_data.game_map.get_block_safe(x + 1, y, Game_Map::Layer::map);
 				int x_wood = 0;
 
-				if (down_b->type != Block::wood_log && down_b->type != Block::leaves) {up_b->type == Block::wood_log ? x_wood = 4 : x_wood = 7;}
+				if (up_b->type == Block::leaves && down_b->type == Block::wood_log) {x_wood = 5;}
+				else if (down_b->type != Block::wood_log && down_b->type != Block::leaves) {up_b->type == Block::wood_log ? x_wood = 4 : x_wood = 7;}
 				else if (left_b->type == Block::leaves && right_b->type == Block::leaves && down_b->type == Block::wood_log) {x_wood = 1;}
 				else if (left_b->type != Block::leaves && right_b->type == Block::leaves && down_b->type == Block::wood_log) {x_wood = 2;}
 				else if (left_b->type == Block::leaves && right_b->type != Block::leaves && down_b->type == Block::wood_log) {x_wood = 3;}
-				else if (up_b->type == Block::leaves && down_b->type == Block::wood_log) {x_wood = 5;}
 				else if (up_b->type != Block::leaves && down_b->type == Block::wood_log) {up_b->type == Block::wood_log ? x_wood = 0 : x_wood = 6;}
 
 				DrawTexturePro(
 					asset_manager.trees, // Texture.
-					get_texture_atlas(x_wood, 0, 32, 32), //source.
+					get_texture_atlas(x_wood, variant, 32, 32), //source.
 					{(float)x, (float)y, 1, 1}, //destination.
 					{0, 0}, //origin (top-left corner.
 					0.0f,  // angle of rotation clockwise.
@@ -178,7 +182,7 @@ bool update_game()
 			{
 				DrawTexturePro(
 				asset_manager.textures, // Texture.
-				get_texture_atlas(b.type, 0, 32, 32), //source.
+				get_texture_atlas(b.type, variant, 32, 32), //source.
 				{(float)x, (float)y, 1, 1}, //destination.
 				{0, 0}, //origin (top-left corner.
 				0.0f,  // angle of rotation clockwise.

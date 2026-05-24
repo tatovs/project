@@ -14,7 +14,7 @@ void Game_Map::create(int w, int h)
 	for (auto &w : wall_data) {w = {}; } //Clears all Block data.
 }
 
-Block &Game_Map::get_map_block_unsafe(int x, int y, Game_Map::Layer layer = Game_Map::Layer::map)
+Block &Game_Map::get_block_unsafe(int x, int y, Game_Map::Layer layer)
 {
 	permaAssertCommentDevelopement(map_data.size() == width * height, "Map data not initialized");
 	permaAssertCommentDevelopement( x >= 0 && y >= 0 && x < width && y < height, "get:block_unsafe out of bounds error");
@@ -30,7 +30,7 @@ Block &Game_Map::get_map_block_unsafe(int x, int y, Game_Map::Layer layer = Game
 	}
 }
 
-Block *Game_Map::get_map_block_safe(int x, int y, Game_Map::Layer  layer = Game_Map::Layer::map)
+Block *Game_Map::get_block_safe(int x, int y, Game_Map::Layer  layer)
 {
 	permaAssertCommentDevelopement(map_data.size() == width * height, "Map data not initialized");
 	
