@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <raymath.h>
+#include<imgui.h>
 
 #include "game_main.h"
 #include <asserts.h>
@@ -9,6 +10,7 @@
 #include "game_map.h"
 #include "helpers.h"
 #include "rng.h"
+#include "world_generator.h"
 
 struct Game_Data
 {
@@ -22,35 +24,19 @@ bool init_game()
 {
 	asset_manager.load_all();
 
-	game_data.game_map.create(30, 20);
+	generate_world(game_data.game_map, 45786213);
 
+/*
 	for (int y = 0; y < game_data.game_map.height; y++)
 		for (int x = 0; x < game_data.game_map.width; x++)
 		{
 			game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::wall).type = Block::dirt_wall;
 		}
-
-	for (int y = 0; y < game_data.game_map.height; y++)
-		for (int x = 0; x < game_data.game_map.width; x++)
-		{
-			float s = (std::sin(x) + 1.0f) / 2.0f;
-			float s1 = (std::sin(x * 0.5) + 1.0f) / 2.0f;
-			game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::dirt;
-			/*
-			if (game_data.game_map.height - (game_data.game_map.height * 0.3 * s) - (game_data.game_map.height * 0.2 * s1) < y)
-			{
-				game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::dirt;
-			}
-			else
-			{
-				game_data.game_map.get_block_unsafe(x, y, Game_Map::Layer::map).type = Block::air;
-			}
-			*/
-		}
+*/	
 
 	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
 	game_data.camera.rotation = 0.0f; 
-	game_data.camera.zoom = 50.0f; 
+	game_data.camera.zoom = 100.0f; 
 
 	return true;
 }
@@ -65,10 +51,11 @@ bool update_game()
 	ClearBackground({75, 75, 150, 255});
 
 	#pragma region camera movement
-	if (IsKeyDown(KEY_LEFT)) {game_data.camera.target.x -= 7.0f * delta_time;}
-	if (IsKeyDown(KEY_RIGHT)) {game_data.camera.target.x += 7.0f * delta_time;}
-	if (IsKeyDown(KEY_UP)) {game_data.camera.target.y -= 7.0f * delta_time;}
-	if (IsKeyDown(KEY_DOWN)) {game_data.camera.target.y += 7.0f * delta_time;}
+	static float CAMERA_SPEED = 10.0f;
+	if (IsKeyDown(KEY_LEFT)) {game_data.camera.target.x -= CAMERA_SPEED * delta_time;}
+	if (IsKeyDown(KEY_RIGHT)) {game_data.camera.target.x += CAMERA_SPEED * delta_time;}
+	if (IsKeyDown(KEY_UP)) {game_data.camera.target.y -= CAMERA_SPEED * delta_time;}
+	if (IsKeyDown(KEY_DOWN)) {game_data.camera.target.y += CAMERA_SPEED * delta_time;}
 	#pragma endregion
 
 	Vector2 world_pos = GetScreenToWorld2D(GetMousePosition(), game_data.camera);
@@ -202,6 +189,11 @@ bool update_game()
 
 	EndMode2D();
 	#pragma endregion
+
+	ImGui::Begin("Game Controls");
+	ImGui::SliderFloat("Camera Zoom:", &game_data.camera.zoom, 10, 150);
+	ImGui::SliderFloat("Camera Speed:", &CAMERA_SPEED, 5, 30);
+	ImGui::End();
 
 	DrawFPS(10, 10);
 
