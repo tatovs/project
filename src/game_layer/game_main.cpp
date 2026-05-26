@@ -24,7 +24,7 @@ bool init_game()
 {
 	asset_manager.load_all();
 
-	generate_world(game_data.game_map, 45786213);
+	generate_world(game_data.game_map);
 
 /*
 	for (int y = 0; y < game_data.game_map.height; y++)
@@ -34,7 +34,7 @@ bool init_game()
 		}
 */	
 
-	game_data.camera.target = {0, 0}; // coordinates at the center of the view.
+	game_data.camera.target = {20, 120}; // coordinates at the center of the view.
 	game_data.camera.rotation = 0.0f; 
 	game_data.camera.zoom = 100.0f; 
 

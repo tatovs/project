@@ -33,6 +33,47 @@ void generate_world(Game_Map &game_map, int seed)
 	dirt_noise_generator->FillNoiseSet(dirt_noise, 0, 0, 0, width, 1, 1);
 	stone_noise_generator->FillNoiseSet(stone_noise, 0, 0, 0, width, 1, 1);
 	
+	//convert values from [-1, 1] to [0, 1]
+	for (int i = 0; i < width; i++)
+	{
+		dirt_noise[i] = (dirt_noise[i] +1) / 2;
+		stone_noise[i] = (stone_noise[i] +1) / 2;
+
+		//stone_noise[i] = std::pow(stone_noise[i], 2) //make steeper mountains.
+	}
+
+	int dirt_offset_start = -5;
+	int dirt_offset_end = 35;
+
+	int stone_height_start = 80;
+	int stone_height_end = 170;
+
+	for (int x = 0; x < width; x++)
+	{
+		int stone_height = stone_height_start + (stone_height_end - stone_height_start) * stone_noise[x];
+		int dirt_height = dirt_offset_start + (dirt_offset_end - dirt_offset_start) * dirt_noise[x];
+		dirt_height = stone_height - dirt_height;
+
+		for (int y = 0; y < height; y++)
+		{
+			Block b;
+
+			if (y > dirt_height)
+			{
+				b.type = Block::dirt;
+			}
+			if (y == dirt_height)
+			{
+				b.type = Block::grass;
+			}
+			if (y >= stone_height)
+			{
+				b.type = Block::stone;
+			}
+			game_map.get_block_unsafe(x, y) = b;
+		}
+	}
+
 	FastNoiseSIMD::FreeNoiseSet(dirt_noise);
 	FastNoiseSIMD::FreeNoiseSet(stone_noise);
 }
