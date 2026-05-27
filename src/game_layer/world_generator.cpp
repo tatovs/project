@@ -3,11 +3,6 @@
 
 #include <FastNoiseSIMD.h>
 
-float lerp(float noise_1, float noise_2, float control_noise)
-{
-	return noise_1 + (noise_2 - noise_1) * control_noise;
-}
-
 void generate_world(Game_Map &game_map, int seed)
 {
 	const int width = 800;
@@ -26,7 +21,6 @@ void generate_world(Game_Map &game_map, int seed)
 	dirt_noise_generator->SetFrequency(0.026);
 	
 	float *dirt_noise = FastNoiseSIMD::GetEmptySet(width);
-	float *dirt_valley_noise = FastNoiseSIMD::GetEmptySet(width);
 
 	dirt_noise_generator->FillNoiseSet(dirt_noise, 0, 0, 0, width, 1, 1);
 	
