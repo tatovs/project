@@ -3,11 +3,6 @@
 
 #include <FastNoiseSIMD.h>
 
-float lerp(float noise_1, float noise_2, float control_noise)
-{
-	return noise_1 + (noise_2 - noise_1) * control_noise;
-}
-
 void generate_world(Game_Map &game_map, int seed)
 {
 	const int width = 800;
