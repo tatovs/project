@@ -12,7 +12,7 @@ void generate_world(Game_Map &game_map, int seed)
 
 	std::ranlux24_base rng(seed++);
 	
-	#pragma region noise_setup
+	#pragma region dirt_noise_setup
 	std::unique_ptr<FastNoiseSIMD> dirt_noise_generator(FastNoiseSIMD::NewFastNoiseSIMD());
 
 	dirt_noise_generator->SetSeed(seed++);
@@ -32,8 +32,8 @@ void generate_world(Game_Map &game_map, int seed)
 	}
 	#pragma endregion
 
-	#pragma region custom_layer
-	int stone_change_cooldown = get_random_int(rng, 5, 20);
+	#pragma region stone_layer_setup
+	int stone_change_cooldown = get_random_int(rng, 5, 28);
 	int stone_change_direction = get_random_int(rng, -2, 2);
 	#pragma endregion
 
@@ -80,9 +80,10 @@ void generate_world(Game_Map &game_map, int seed)
 			stone_height = 120;
 		}
 		#pragma endregion
+		#pragma region dirt layer
 		int dirt_height = dirt_offset_start + (dirt_offset_end - dirt_offset_start) * dirt_noise[x];
 		dirt_height = stone_height - dirt_height;
-
+		#pragma endregion
 		for (int y = 0; y < height; y++)
 		{
 			Block b;
