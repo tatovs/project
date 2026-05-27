@@ -22,8 +22,8 @@ void generate_world(Game_Map &game_map, int seed)
 	dirt_noise_generator->SetSeed(seed++);
 
 	dirt_noise_generator->SetNoiseType(FastNoiseSIMD::NoiseType::SimplexFractal);
-	dirt_noise_generator->SetFractalOctaves(2);
-	dirt_noise_generator->SetFrequency(0.02);
+	dirt_noise_generator->SetFractalOctaves(4);
+	dirt_noise_generator->SetFrequency(0.026);
 	
 	float *dirt_noise = FastNoiseSIMD::GetEmptySet(width);
 	float *dirt_valley_noise = FastNoiseSIMD::GetEmptySet(width);
