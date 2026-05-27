@@ -11,7 +11,8 @@ void generate_world(Game_Map &game_map, int seed)
 	game_map.create(width, height);
 
 	std::ranlux24_base rng(seed++);
-
+	
+	#pragma region noise_setup
 	std::unique_ptr<FastNoiseSIMD> dirt_noise_generator(FastNoiseSIMD::NewFastNoiseSIMD());
 
 	dirt_noise_generator->SetSeed(seed++);
@@ -29,16 +30,56 @@ void generate_world(Game_Map &game_map, int seed)
 	{
 		dirt_noise[i] = (dirt_noise[i] +1) / 2;
 	}
+	#pragma endregion
+
+	#pragma region custom_layer
+	int stone_change_cooldown = get_random_int(rng, 5, 20);
+	int stone_change_direction = get_random_int(rng, -2, 2);
+	#pragma endregion
 
 	int dirt_offset_start = -5;
 	int dirt_offset_end = 35;
 
-	int stone_height_start = 80;
-	int stone_height_end = 170;
+	int stone_height = 80;
 
 	for (int x = 0; x < width; x++)
 	{
-		int stone_height = stone_height_start + (stone_height_end - stone_height_start) * 1;
+		#pragma region stone layer
+		stone_change_cooldown--;
+		if (stone_change_cooldown <= 0)
+		{
+			stone_change_cooldown = get_random_int(rng, 5, 20);
+			stone_change_direction = get_random_int(rng, -2, 2);
+		}
+
+		if (stone_change_direction == -2)
+		{
+			stone_height--;
+			if (get_random_chance(rng, 0.3f)) {stone_height--;}
+		}
+		else if (stone_change_direction == -1)
+		{
+			if (get_random_chance(rng, 0.3f)) {stone_height--;}
+		}
+		else if (stone_change_direction == 1)
+		{
+			if (get_random_chance(rng, 0.3f)) {stone_height++;}
+		}
+		else if (stone_change_direction == 2)
+		{
+			stone_height++;
+			if (get_random_chance(rng, 0.3f)) {stone_height++;}
+		}
+
+		if (stone_height < 60)
+		{
+			stone_height = 60;
+		}
+		else if (stone_height > 120)
+		{
+			stone_height = 120;
+		}
+		#pragma endregion
 		int dirt_height = dirt_offset_start + (dirt_offset_end - dirt_offset_start) * dirt_noise[x];
 		dirt_height = stone_height - dirt_height;
 
