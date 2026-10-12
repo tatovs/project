@@ -16,9 +16,14 @@ struct Game_Data
 {
 	Game_Map game_map;
 	Camera2D camera;
+
+	int creative_selected_block = Block::dirt;
+
 }game_data;
 
 Asset_Manager asset_manager;
+
+bool show_imgui = false;
 
 bool init_game()
 {
@@ -50,6 +55,8 @@ bool update_game()
 
 	ClearBackground({75, 75, 150, 255});
 
+	if (IsKeyPressed(KEY_F10)) { show_imgui = !show_imgui; }
+
 	#pragma region camera movement
 	static float CAMERA_SPEED = 10.0f;
 	if (IsKeyDown(KEY_LEFT)) {game_data.camera.target.x -= CAMERA_SPEED * delta_time;}
@@ -63,35 +70,42 @@ bool update_game()
 	int y_block = (int) floor(world_pos.y);
 
 	#pragma region block selector
-	static auto new_b = Block::air;
-
-	if (IsKeyReleased(KEY_ONE)) {new_b = Block::wood_log;}
-	if (IsKeyReleased(KEY_TWO)) {new_b = Block::leaves;}
-	if (IsKeyReleased(KEY_THREE)) {new_b = Block::dirt;}
-	if (IsKeyReleased(KEY_FOUR)) {new_b = Block::work_bench;}
-	if (IsKeyReleased(KEY_FIVE)) {new_b = Block::jar;}
-	if (IsKeyReleased(KEY_SIX)) {new_b = Block::brick;} 
-	if (IsKeyReleased(KEY_SEVEN)) {new_b = Block::wordrobe;}
-	if (IsKeyReleased(KEY_EIGHT)) {new_b = Block::bone_chest;}
-	if (IsKeyReleased(KEY_NINE)) {new_b = Block::painting;}
-	if (IsKeyReleased(KEY_ZERO)) {new_b = Block::glass;}
+	if (game_data.creative_selected_block < 0) { game_data.creative_selected_block = 0; }
+	if (game_data.creative_selected_block >= Block::BLOCKS_COUNT) { game_data.creative_selected_block = Block::BLOCKS_COUNT - 1; }
 	#pragma endregion
 
 	#pragma region mouse editor
-	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	if (!show_imgui)
 	{
-		auto b = game_data.game_map.get_block_safe(x_block, y_block, Game_Map::Layer::map);
-		if (b)
+		if (IsKeyDown(KEY_LEFT_CONTROL))
 		{
-			*b = {};
+			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+			{
+				auto b = game_data.game_map.get_block_safe(x_block, y_block, Game_Map::Layer::map);
+				if (b)
+				{
+					game_data.creative_selected_block = b->type;
+				}
+			}
 		}
-	}
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-	{
-		auto b = game_data.game_map.get_block_safe(x_block, y_block, Game_Map::Layer::map);
-		if (b)
+		if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 		{
-			b->type = new_b;
+			if (IsKeyDown(KEY_NULL))
+			{
+				auto b = game_data.game_map.get_block_safe(x_block, y_block, Game_Map::Layer::map);
+				if (b)
+				{
+					*b = {};
+				}
+			}
+		}
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+		{
+			auto b = game_data.game_map.get_block_safe(x_block, y_block, Game_Map::Layer::map);
+			if (b)
+			{
+				b->type = game_data.creative_selected_block;
+			}
 		}
 	}
 	#pragma endregion
@@ -177,23 +191,53 @@ bool update_game()
 			}
 		}
 
-	//Draw frame over the selected block.
+	//Draw Current Selected Block.
 	DrawTexturePro(
-		asset_manager.frame, // Texture.
-		{0, 0, (float)asset_manager.frame.width, (float)asset_manager.frame.height}, //source.
+		asset_manager.textures_walls, // Texture.
+		get_texture_atlas(game_data.creative_selected_block, 0, 32, 32), //source.
 		{(float)x_block, (float)y_block, 1, 1}, //destination.
 		{0, 0}, //origin (top-left corner.
 		0.0f,  // angle of rotation clockwise.
-		WHITE); // tint.
-	//Draw frame under the selected block.
+		Fade(WHITE, 0.75f)); // tint.
 
 	EndMode2D();
 	#pragma endregion
 
-	ImGui::Begin("Game Controls");
-	ImGui::SliderFloat("Camera Zoom:", &game_data.camera.zoom, 10, 150);
-	ImGui::SliderFloat("Camera Speed:", &CAMERA_SPEED, 5, 30);
-	ImGui::End();
+	if (show_imgui)
+	{
+		ImGui::Begin("Game Controls");
+		ImGui::SliderFloat("Camera Zoom:", &game_data.camera.zoom, 10, 150);
+		ImGui::SliderFloat("Camera Speed:", &CAMERA_SPEED, 5, 30);
+
+		ImGui::Separator();
+
+		for (int i = 0; i < Block::BLOCKS_COUNT; i++)
+		{
+			auto atlas = get_texture_atlas(i, 0, 32, 32);
+			atlas.x /= asset_manager.textures.width;
+			atlas.width /= asset_manager.textures.width;
+			atlas.y /= asset_manager.textures.height;
+			atlas.height /= asset_manager.textures.height;
+
+			ImGui::PushID(i);
+
+			ImTextureID tex = (ImTextureID)(intptr_t)asset_manager.textures.id;
+
+			if (ImGui::ImageButton(" ", tex, {35, 35}, {atlas.x, atlas.y}, {atlas.x + atlas.width, atlas.y + atlas.height}))
+			{
+				game_data.creative_selected_block = i;
+			}
+
+			ImGui::PopID();
+
+			if (i % 10 != 0)
+			{
+				ImGui::SameLine();
+			}
+		}
+
+		ImGui::End();
+	}
 
 	DrawFPS(10, 10);
 

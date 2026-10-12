@@ -156,43 +156,66 @@ void generate_world(Game_Map &game_map, int seed)
 	FastNoiseSIMD::FreeNoiseSet(cave_noise);
 	FastNoiseSIMD::FreeNoiseSet(dirt_noise);
 
+	auto perlin_worms = [&] (float initial_x_pos, float initial_y_pos, int life_cilcyes, float max_radius)
+		{
+			float x = initial_x_pos;
+			float y = initial_y_pos;
+			
+			float worm_x_direction = get_random_float(rng, -1, 1);
+			float worm_y_direction = get_random_float(rng, -1, 1);
+			float worm_radius = max_radius;
+			int worm_direction_cooldown = get_random_int(rng, 5, 25);
+
+			for (int cycle = 0; cycle < life_cilcyes; cycle++)
+			{
+				for (int x_radius = -worm_radius; x_radius < worm_radius; x_radius++)
+				{
+					for (int y_radius = -worm_radius; y_radius < worm_radius; y_radius++)
+					{
+						int distance_square = y_radius * y_radius + x_radius * x_radius;
+						if (distance_square <= worm_radius * worm_radius)
+						{
+							auto b = game_map.get_block_safe(x + x_radius, y + y_radius, Game_Map::Layer::map);
+							if (b) {b->type = Block::blue_ruby_block;}
+						}
+					}
+				}
+				worm_direction_cooldown--;
+				if (worm_direction_cooldown <= 0)
+				{
+					worm_direction_cooldown = get_random_int(rng, 5, 25);
+					if (get_random_chance(rng, 0.7))
+					{
+						float keep_factor = 0.8;
+						worm_x_direction = worm_x_direction * keep_factor + (get_random_float(rng, -1, 1)) * (1 - keep_factor);
+						worm_y_direction = worm_y_direction * keep_factor + (get_random_float(rng, -1, 1)) * (1 - keep_factor);
+					}
+					else
+					{
+						float keep_factor = 0.2;
+						worm_x_direction = worm_x_direction * keep_factor + (get_random_float(rng, -1, 1)) * (1 - keep_factor);
+						worm_y_direction = worm_y_direction * keep_factor + (get_random_float(rng, -1, 1)) * (1 - keep_factor);
+					}
+				}
+				x += worm_x_direction * 1.5f;
+				y += worm_y_direction * 1.5f;
+				worm_radius += get_random_float(rng, -0.8, 0.8);
+				worm_radius = std::clamp(worm_radius, 1.0f, max_radius);
+			}
+		};
+
 	#pragma region perlin worms
-	for (size_t worm = 0; worm < 1; worm++)
+	for (size_t worm = 0; worm < 20; worm++)
 	{
 		//Start position.
-		float x = get_random_float(rng, 0, width - 0);
-		float y = get_random_float(rng, 0, height - 0);
+		float x = get_random_float(rng, 0, width - 100);
+		float y = get_random_float(rng, 0, height - 100);
 
-		//Time worm is alive and initial direction of movement.
-		int worm_life = get_random_int(rng, 50, 500);
-
-		float worm_x_direction = get_random_float(rng, -1, 1);
-		float worm_y_direction = get_random_float(rng, -1, 1);
-
-		float worm_radius = 1.0f;
-
-		int worm_direction_cooldown = get_random_int(rng, 5, 25);
-
-		for (int cycle = 0; cycle < worm_life; cycle++)
-		{
-			for (int x_radius = -worm_radius; x_radius <= worm_radius; x_radius++)
-			{
-				for (int y_radius = - worm_radius; y_radius <= worm_radius; y_radius++)
-				{
-				auto b = game_map.get_block_safe(x, y, Game_Map::Layer::map);
-				if (b) {b->type = Block::blue_ruby_block;}
-				}
-			}
-			worm_direction_cooldown--;
-			if (worm_direction_cooldown <= 0)
-			{
-				worm_direction_cooldown = get_random_int(rng, 5, 25);
-				worm_x_direction = get_random_float(rng, -1, 1);
-				worm_y_direction = get_random_float(rng, -1, 1);
-			}
-			x += worm_x_direction * 1.5f;
-			y += worm_y_direction * 1.5f;
-		}
+		//Time worm is alive and initial radius.
+		int max_worm_life = get_random_int(rng, 51, 500);
+		float max_worm_radius = get_random_float(rng, 5.0f, 8.0f);
+		
+		perlin_worms(x, y, max_worm_life, max_worm_radius);
 	}
 	#pragma endregion
 }
